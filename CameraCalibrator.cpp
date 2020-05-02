@@ -1,19 +1,3 @@
-/*------------------------------------------------------------------------------------------*\
-   This file contains material supporting chapter 9 of the cookbook:  
-   Computer Vision Programming using the OpenCV Library. 
-   by Robert Laganiere, Packt Publishing, 2011.
-
-   This program is free software; permission is hereby granted to use, copy, modify, 
-   and distribute this source code, or portions thereof, for any purpose, without fee, 
-   subject to the restriction that the copyright notice may not be removed 
-   or altered from any source or altered source distribution. 
-   The software is released on an as-is basis and without any warranties of any kind. 
-   In particular, the software is not guaranteed to be fault-tolerant or free from failure. 
-   The author disclaims all warranties with regard to this software, any use, 
-   and any consequent failure, is purely the responsibility of the user.
- 
-   Copyright (C) 2010-2011 Robert Laganiere, www.laganiere.name
-\*------------------------------------------------------------------------------------------*/
 
 #include "CameraCalibrator.h"
 
@@ -221,21 +205,21 @@ int main(){
 
   cout<<"compiled"<<endl;
 
-  const std::vector<std::string> files = {"chess1.jpg", "chess2.jpg"};
+  const std::vector<std::string> files = {"boards/1.jpg", "boards/2.jpg","boards/3.jpg","boards/4.jpg","boards/5.jpg","boards/6.jpg","boards/7.jpg","boards/8.jpg","boards/9.jpg","boards/10.jpg","boards/11.jpg","boards/12.jpg","boards/13.jpg","boards/14.jpg","boards/15.jpg","boards/16.jpg","boards/17.jpg","boards/18.jpg","boards/19.jpg","boards/20.jpg","boards/21.jpg","boards/22.jpg","boards/23.jpg","boards/24.jpg","boards/25.jpg"};
   cv::Size board_size(7,7);
 
   CameraCalibrator cal;
   cal.addChessboardPoints(files, board_size);
 
-  cv::Mat img = cv::imread("chess1.jpg");
+  cv::Mat img = cv::imread("boards/1.jpg");
 
   cv::Size img_size = img.size();
   cal.calibrate(img_size);
   cout<<cameraMatrix<<endl;
 
 
-  cv::Mat image1 = cv::imread("m3.jpg");
-  cv::Mat image2 = cv::imread("m4.jpg");
+  cv::Mat image1 = cv::imread("kl.jpg");
+  cv::Mat image2 = cv::imread("kr.jpg");
 
   // vector of keypoints and descriptors
   std::vector<cv::KeyPoint> keypoints1;
@@ -243,7 +227,10 @@ int main(){
   cv::Mat descriptors1, descriptors2;
 
   // Construction of the SIFT feature detector
-  cv::Ptr<cv::Feature2D> ptrFeature2D = cv::xfeatures2d::SIFT::create(500);
+  cv::Ptr<cv::Feature2D> ptrFeature2D = cv::xfeatures2d::SIFT::create(10000);
+  // Ptr<FeatureDetector> ptrFeature2D = ORB::create(30000);
+  // cv::Ptr<cv::Feature2D> ptrFeature2D = cv::xfeatures2d::SURF::create(10);
+
 
   // Detection of the SIFT features and associated descriptors
   ptrFeature2D->detectAndCompute(image1, cv::noArray(), keypoints1, descriptors1);
@@ -254,6 +241,13 @@ int main(){
   cv::BFMatcher matcher(cv::NORM_L2, true);
   std::vector<cv::DMatch> matches;
   matcher.match(descriptors1, descriptors2, matches);
+
+  cv::Mat matchImage;
+
+
+  cv::namedWindow("img1");
+  cv::drawMatches(image1, keypoints1, image2, keypoints2, matches, matchImage, Scalar::all(-1), Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+  cv::imwrite("matches.jpg", matchImage);
 
   // Convert keypoints into Point2f
   std::vector<cv::Point2f> points1, points2;
