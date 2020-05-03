@@ -69,10 +69,6 @@ int main(){
 	    cv::FM_RANSAC,   // RANSAC method
 	    1.0,        // distance to epipolar line
 	    0.98);     // confidence probability
-	
-
-	// std::vector<cv::DMatch> matches;
-	// cv::Mat fundamental = ransacTest(outputMatches, keypoints1, keypoints2, matches);
 
 	cout<<fundamental;
 
