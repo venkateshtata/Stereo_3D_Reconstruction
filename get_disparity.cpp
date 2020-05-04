@@ -20,74 +20,6 @@
 using namespace std;
 using namespace cv;
 
-// std::vector<cv::Point2f> points1, points2;
-
-
-// cv::Mat ransacTest(const std::vector<cv::DMatch>& matches,
-//                  std::vector<cv::KeyPoint>& keypoints1, 
-// 				 std::vector<cv::KeyPoint>& keypoints2,
-// 			     std::vector<cv::DMatch>& outMatches) {
-
-// // Convert keypoints into Point2f	
-// // std::vector<cv::Point2f> points1, points2;	
-
-// for (std::vector<cv::DMatch>::const_iterator it= matches.begin();
-// 	 it!= matches.end(); ++it) {
-
-// 	 // Get the position of left keypoints
-// 	 points1.push_back(keypoints1[it->queryIdx].pt);
-// 	 // Get the position of right keypoints
-// 	 points2.push_back(keypoints2[it->trainIdx].pt);
-// }
-
-// // Compute F matrix using RANSAC
-// std::vector<uchar> inliers(points1.size(),0);
-// cv::Mat fundamental= cv::findFundamentalMat(
-// 	points1,points2, // matching points
-//     inliers,         // match status (inlier or outlier)  
-//     cv::FM_RANSAC,   // RANSAC method
-//     1.0,        // distance to epipolar line
-//     0.98);     // confidence probability
-
-// // extract the surviving (inliers) matches
-// std::vector<uchar>::const_iterator itIn= inliers.begin();
-// std::vector<cv::DMatch>::const_iterator itM= matches.begin();
-// // for all matches
-// for ( ;itIn!= inliers.end(); ++itIn, ++itM) {
-
-// 	if (*itIn) { // it is a valid match
-
-// 		outMatches.push_back(*itM);
-// 	}
-// }
-
-
-// // The F matrix will be recomputed with all accepted matches
-
-// 	// Convert keypoints into Point2f for final F computation	
-// 	points1.clear();
-// 	points2.clear();
-
-// 	for (std::vector<cv::DMatch>::const_iterator it= outMatches.begin();
-// 		 it!= outMatches.end(); ++it) {
-
-// 		 // Get the position of left keypoints
-// 		 points1.push_back(keypoints1[it->queryIdx].pt);
-// 		 // Get the position of right keypoints
-// 		 points2.push_back(keypoints2[it->trainIdx].pt);
-// 	}
-
-// 	// Compute 8-point F from all accepted matches
-// 	fundamental= cv::findFundamentalMat(
-// 		points1,points2, // matching points
-// 		cv::FM_8POINT); // 8-point method
-
-
-// return fundamental;
-// }
-
-
-
 
 
 int main(){
@@ -128,8 +60,6 @@ int main(){
 	    }
 
 
-	// Compute F matrix from 7 matches
-	// cv::Mat fundamental= cv::findFundamentalMat(selPoints1, selPoints2, cv::FM_7POINT);
 	std::vector<uchar> inliers(points1.size(),0);
 	cv::Mat fundamental= cv::findFundamentalMat(
 		points1,points2, // matching points
@@ -138,9 +68,6 @@ int main(){
 	    1.0,        // distance to epipolar line
 	    0.98);     // confidence probability
 	
-
-	// std::vector<cv::DMatch> matches;
-	// cv::Mat fundamental = ransacTest(outputMatches, keypoints1, keypoints2, matches);
 
 	cout<<fundamental;
 
@@ -171,10 +98,4 @@ int main(){
 
 
 }
-
-
-
-
-
-
 
