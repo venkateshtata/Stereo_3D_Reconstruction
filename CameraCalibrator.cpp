@@ -308,36 +308,13 @@ int main(){
 
   cout<<"3D points :"<<points3D.size()<<endl;
 
-  viz::Viz3d window; //creating a Viz window
-
-  // viz::WCameraPosition cam(cameraMatrix, image1, 30.0);
-
-
- 
-
-  
-
-
+  viz::Viz3d window; //creating a Viz windo
 
   //Displaying the Coordinate Origin (0,0,0)
   window.showWidget("coordinate", viz::WCoordinateSystem());
-  //Displaying the 3D points in green
-  // cv::viz::WCameraPosition camm(cameraMatrix, image1, 30.0, viz::Color::black());
 
-  // window.showWidget("Camera", camm);
   
   window.setBackgroundColor(cv::viz::Color::black());
-
-
-  // cv::Mat rvec, tvec;
-  // cv::solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs, rvec, tvec);
-  // cv::Mat rot;
-  // cv::Rodrigues(rvec, rot);
-
-
-  // cv::Affine3d pose(rot, tvec);
-  // window.setWidgetPose("top", pose);
-
 
 
   window.showWidget("points", viz::WCloud(points3D, viz::Color::green()));
