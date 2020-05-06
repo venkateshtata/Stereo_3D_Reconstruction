@@ -13,21 +13,25 @@ int main(){
 	img2 = cv::imread("imL.png",cv::IMREAD_GRAYSCALE);
 
 	// Define keypoints vector
-	std::vector<cv::KeyPoint> keypoints1;
-	std::vector<cv::KeyPoint> keypoints2;
+	std::vector<cv::KeyPoint> keypoints1, keypoints2;
+
 	// Define feature detector
 	cv::Ptr<cv::Feature2D> ptrFeature2D = cv::xfeatures2d::SIFT::create(74);	
+
 	// Keypoint detection
 	ptrFeature2D->detect(img1,keypoints1);
 	ptrFeature2D->detect(img2,keypoints2);
+
 	// Extract the descriptor
 	cv::Mat descriptors1;
 	cv::Mat descriptors2;
 
 	ptrFeature2D->compute(img1,keypoints1,descriptors1);
 	ptrFeature2D->compute(img2,keypoints2,descriptors2);
+
 	// Construction of the matcher
 	cv::BFMatcher matcher(cv::NORM_L2);
+	
 	// Match the two image descriptors
 	std::vector<cv::DMatch> outputMatches;
 	matcher.match(descriptors1,descriptors2, outputMatches);
