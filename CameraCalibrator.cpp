@@ -23,25 +23,22 @@ using namespace cv;
 std::vector<cv::Mat> rvecs, tvecs;
 
 // Open chessboard images and extract corner points
-int CameraCalibrator::addChessboardPoints(
-         const std::vector<std::string>& filelist, 
-         cv::Size & boardSize) {
+int CameraCalibrator::addChessboardPoints(const std::vector<std::string>& filelist, cv::Size & boardSize) {
 
 	// the points on the chessboard
   std::vector<cv::Point2f> imageCorners;
   std::vector<cv::Point3f> objectCorners;
     
 
-    // 3D Scene Points:
-    // Initialize the chessboard corners 
-    // in the chessboard reference frame
+  // Initialize the chessboard corners 
+  // in the chessboard reference frame
 	// The corners are at 3D location (X,Y,Z)= (i,j,0)
 	for (int i=0; i<boardSize.height; i++) {
 		for (int j=0; j<boardSize.width; j++) {
 
 			objectCorners.push_back(cv::Point3f(i, j, 0.0f));
 		}
-    }
+  }
 
     // 2D Image points:
     cv::Mat image; // to contain chessboard image
@@ -53,15 +50,10 @@ int CameraCalibrator::addChessboardPoints(
         image = cv::imread(filelist[i],0);
 
         // Get the chessboard corners
-        bool found = cv::findChessboardCorners(
-                        image, boardSize, imageCorners);
+        bool found = cv::findChessboardCorners(image, boardSize, imageCorners);
 
         // Get subpixel accuracy on the corners
-        cv::cornerSubPix(image, imageCorners, 
-                  cv::Size(5,5), 
-                  cv::Size(-1,-1), 
-			cv::TermCriteria(cv::TermCriteria::MAX_ITER +
-                          cv::TermCriteria::EPS, 
+        cv::cornerSubPix(image, imageCorners, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER + cv::TermCriteria::EPS, 
              30,		// max number of iterations 
              0.1));     // min accuracy
 
@@ -200,11 +192,6 @@ void CameraCalibrator::triangulate(const cv::Mat &p1, const cv::Mat &p2, const s
 
 int main(){
 
-
-
-
-  cout<<"compiled"<<endl;
-
   const std::vector<std::string> files = {"boards/1.jpg", "boards/2.jpg","boards/3.jpg","boards/4.jpg","boards/5.jpg","boards/6.jpg","boards/7.jpg","boards/8.jpg","boards/9.jpg","boards/10.jpg","boards/11.jpg","boards/12.jpg","boards/13.jpg","boards/14.jpg","boards/15.jpg","boards/16.jpg","boards/17.jpg","boards/18.jpg","boards/19.jpg","boards/20.jpg","boards/21.jpg","boards/22.jpg","boards/23.jpg","boards/24.jpg","boards/25.jpg"};
   cv::Size board_size(7,7);
 
@@ -218,8 +205,8 @@ int main(){
   cout<<cameraMatrix<<endl;
 
 
-  cv::Mat image1 = cv::imread("kl.jpg");
-  cv::Mat image2 = cv::imread("kr.jpg");
+  cv::Mat image1 = cv::imread("imR.png");
+  cv::Mat image2 = cv::imread("imL.png");
 
   // vector of keypoints and descriptors
   std::vector<cv::KeyPoint> keypoints1;

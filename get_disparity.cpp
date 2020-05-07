@@ -31,15 +31,14 @@ int main(){
 
 	// Construction of the matcher
 	cv::BFMatcher matcher(cv::NORM_L2);
-	
+
 	// Match the two image descriptors
 	std::vector<cv::DMatch> outputMatches;
 	matcher.match(descriptors1,descriptors2, outputMatches);
 
 	// Convert keypoints into Point2f
 	std::vector<cv::Point2f> points1, points2;
-	for (std::vector<cv::DMatch>::const_iterator it= outputMatches.begin();
-			 it!= outputMatches.end(); ++it) {
+	for (std::vector<cv::DMatch>::const_iterator it= outputMatches.begin(); it!= outputMatches.end(); ++it) {
 
 			 // Get the position of left keypoints
 			 points1.push_back(keypoints1[it->queryIdx].pt);
