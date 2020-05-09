@@ -2,20 +2,7 @@
 #include "CameraCalibrator.h"
 
 #include <opencv2/opencv.hpp>
-#include <iostream>
-#include <cstdlib>
-#include <cstdlib>
-#include <random>
-#include <vector>
-
-#include "opencv2/features2d/features2d.hpp"
-
 #include "opencv2/xfeatures2d.hpp"
-
-#include <opencv2/xfeatures2d/nonfree.hpp>
-#include <opencv2/xfeatures2d.hpp>
-
-
 
 using namespace std;
 using namespace cv;
@@ -23,21 +10,24 @@ using namespace cv;
 std::vector<cv::Mat> rvecs, tvecs;
 
 // Open chessboard images and extract corner points
-int CameraCalibrator::addChessboardPoints(const std::vector<std::string>& filelist, cv::Size & boardSize) {
+int CameraCalibrator::addChessboardPoints(
+         const std::vector<std::string>& filelist, 
+         cv::Size & boardSize) {
 
-	// the points on the chessboard
+  // the points on the chessboard
   std::vector<cv::Point2f> imageCorners;
   std::vector<cv::Point3f> objectCorners;
     
 
-  // Initialize the chessboard corners 
-  // in the chessboard reference frame
-	// The corners are at 3D location (X,Y,Z)= (i,j,0)
-	for (int i=0; i<boardSize.height; i++) {
-		for (int j=0; j<boardSize.width; j++) {
+    // 3D Scene Points:
+    // Initialize the chessboard corners 
+    // in the chessboard reference frame
+  // The corners are at 3D location (X,Y,Z)= (i,j,0)
+  for (int i=0; i<boardSize.height; i++) {
+    for (int j=0; j<boardSize.width; j++) {
 
-			objectCorners.push_back(cv::Point3f(i, j, 0.0f));
-		}
+      objectCorners.push_back(cv::Point3f(i, j, 0.0f));
+    }
   }
 
     // 2D Image points:
@@ -50,17 +40,22 @@ int CameraCalibrator::addChessboardPoints(const std::vector<std::string>& fileli
         image = cv::imread(filelist[i],0);
 
         // Get the chessboard corners
-        bool found = cv::findChessboardCorners(image, boardSize, imageCorners);
+        bool found = cv::findChessboardCorners(
+                        image, boardSize, imageCorners);
 
         // Get subpixel accuracy on the corners
-        cv::cornerSubPix(image, imageCorners, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER + cv::TermCriteria::EPS, 
-             30,		// max number of iterations 
+        cv::cornerSubPix(image, imageCorners, 
+                  cv::Size(5,5), 
+                  cv::Size(-1,-1), 
+      cv::TermCriteria(cv::TermCriteria::MAX_ITER +
+                          cv::TermCriteria::EPS, 
+             30,    // max number of iterations 
              0.1));     // min accuracy
 
           // If we have a good board, add it to our data
-		  if (imageCorners.size() == boardSize.area()) {
+      if (imageCorners.size() == boardSize.area()) {
 
-			// Add image and scene points from one view
+      // Add image and scene points from one view
             addPoints(imageCorners, objectCorners);
             successes++;
           }
@@ -73,16 +68,16 @@ int CameraCalibrator::addChessboardPoints(const std::vector<std::string>& fileli
         cv::waitKey(100);
     }
 
-	return successes;
+  return successes;
 }
 
 // Add scene points and corresponding image points
 void CameraCalibrator::addPoints(const std::vector<cv::Point2f>& imageCorners, const std::vector<cv::Point3f>& objectCorners) {
 
-	// 2D image points from one view
-	imagePoints.push_back(imageCorners);          
-	// corresponding 3D scene points
-	objectPoints.push_back(objectCorners);
+  // 2D image points from one view
+  imagePoints.push_back(imageCorners);          
+  // corresponding 3D scene points
+  objectPoints.push_back(objectCorners);
 
 }
 
@@ -90,62 +85,23 @@ void CameraCalibrator::addPoints(const std::vector<cv::Point2f>& imageCorners, c
 // returns the re-projection error
 double CameraCalibrator::calibrate(cv::Size &imageSize)
 {
-	// undistorter must be reinitialized
-	mustInitUndistort= true;
+  // undistorter must be reinitialized
+  mustInitUndistort= true;
 
-	//Output rotations and translations
+  //Output rotations and translations
     
 
-	// start calibration
-	return 
+  // start calibration
+  return 
      calibrateCamera(objectPoints, // the 3D points
-		      imagePoints,  // the image points
-					imageSize,    // image size
-					cameraMatrix, // output camera matrix
-					distCoeffs,   // output distortion matrix
-					rvecs, tvecs, // Rs, Ts 
-					flag);        // set options
-//					,CV_CALIB_USE_INTRINSIC_GUESS);
+          imagePoints,  // the image points
+          imageSize,    // image size
+          cameraMatrix, // output camera matrix
+          distCoeffs,   // output distortion matrix
+          rvecs, tvecs, // Rs, Ts 
+          flag);        // set options
+//          ,CV_CALIB_USE_INTRINSIC_GUESS);
 
-}
-
-// remove distortion in an image (after calibration)
-cv::Mat CameraCalibrator::remap(const cv::Mat &image) {
-
-	cv::Mat undistorted;
-
-	if (mustInitUndistort) { // called once per calibration
-    
-		cv::initUndistortRectifyMap(
-			cameraMatrix,  // computed camera matrix
-            distCoeffs,    // computed distortion matrix
-            cv::Mat(),     // optional rectification (none) 
-			cv::Mat(),     // camera matrix to generate undistorted
-			cv::Size(640,480),
-//            image.size(),  // size of undistorted
-            CV_32FC1,      // type of output map
-            map1, map2);   // the x and y mapping functions
-
-		mustInitUndistort= false;
-	}
-
-	// Apply mapping functions
-    cv::remap(image, undistorted, map1, map2, 
-		cv::INTER_LINEAR); // interpolation type
-
-	return undistorted;
-}
-
-
-// Set the calibration options
-// 8radialCoeffEnabled should be true if 8 radial coefficients are required (5 is default)
-// tangentialParamEnabled should be true if tangeantial distortion is present
-void CameraCalibrator::setCalibrationFlag(bool radial8CoeffEnabled, bool tangentialParamEnabled) {
-
-    // Set the flag used in cv::calibrateCamera()
-    flag = 0;
-    if (!tangentialParamEnabled) flag += CV_CALIB_ZERO_TANGENT_DIST;
-	if (radial8CoeffEnabled) flag += CV_CALIB_RATIONAL_MODEL;
 }
 
 
@@ -192,6 +148,8 @@ void CameraCalibrator::triangulate(const cv::Mat &p1, const cv::Mat &p2, const s
 
 int main(){
 
+  cout<<"compiled"<<endl;
+
   const std::vector<std::string> files = {"boards/1.jpg", "boards/2.jpg","boards/3.jpg","boards/4.jpg","boards/5.jpg","boards/6.jpg","boards/7.jpg","boards/8.jpg","boards/9.jpg","boards/10.jpg","boards/11.jpg","boards/12.jpg","boards/13.jpg","boards/14.jpg","boards/15.jpg","boards/16.jpg","boards/17.jpg","boards/18.jpg","boards/19.jpg","boards/20.jpg","boards/21.jpg","boards/22.jpg","boards/23.jpg","boards/24.jpg","boards/25.jpg"};
   cv::Size board_size(7,7);
 
@@ -215,9 +173,6 @@ int main(){
 
   // Construction of the SIFT feature detector
   cv::Ptr<cv::Feature2D> ptrFeature2D = cv::xfeatures2d::SIFT::create(10000);
-  // Ptr<FeatureDetector> ptrFeature2D = ORB::create(30000);
-  // cv::Ptr<cv::Feature2D> ptrFeature2D = cv::xfeatures2d::SURF::create(10);
-
 
   // Detection of the SIFT features and associated descriptors
   ptrFeature2D->detectAndCompute(image1, cv::noArray(), keypoints1, descriptors1);
@@ -295,15 +250,14 @@ int main(){
 
   cout<<"3D points :"<<points3D.size()<<endl;
 
-  viz::Viz3d window; //creating a Viz windo
+  viz::Viz3d window; //creating a Viz window
 
   //Displaying the Coordinate Origin (0,0,0)
   window.showWidget("coordinate", viz::WCoordinateSystem());
 
-  
   window.setBackgroundColor(cv::viz::Color::black());
 
-
+  //Displaying the 3D points in green
   window.showWidget("points", viz::WCloud(points3D, viz::Color::green()));
   window.spin();
 
